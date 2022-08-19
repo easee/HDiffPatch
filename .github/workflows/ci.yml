@@ -1,0 +1,21 @@
+name: ci
+on:
+  workflow_dispatch
+jobs:
+  vc-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: microsoft/setup-msbuild@v1.1
+        with:
+          msbuild-architecture: x64
+      - name: initAndClone
+        run: |
+          git clone --depth=1 https://github.com/sisong/zlib.git ../zlib
+          git clone --depth=1 https://github.com/sisong/bzip2.git ../bzip2
+          git clone --depth=1 https://github.com/sisong/libmd5.git ../libmd5
+          git clone -b fix-make-build --depth=1 https://github.com/sisong/lzma.git ../lzma
+          git clone -b v1.5.2 --depth=1 https://github.com/facebook/zstd.git ../zstd
+      - name: buildByVC
+        run: |
+          msbuild builds/vc2019/HDiffPatch.sln -t:rebuild -verbosity:diag -property:Configuration=Release
